@@ -25,6 +25,9 @@ knitr::opts_chunk$set(echo = TRUE)
 The impact of the covid-19 pandemic on electricity consumption in the different suburbs of Sydney
 As covid-19 strikes Australia, our reliance on digital equipments especially remote streaming apps has increased drastically.So, the hypothesis is the usage of digital equipments has led to a increase in electricity consumption.
 
+## Research question:
+Is there an electricity usage rise during the pandemic?
+
 ```{r include=FALSE}
 library(readxl)
 data2019 <- read_excel("data/Ausgrid average electricity consumption by LGA 201819.xlsx", range = "A1:Q40")
@@ -103,3 +106,17 @@ barplot(values2023[1:14], names.arg=wrap.labels(rev(suburbs2023), 20),
         col="blue", xlab=" Electricity consumption/mgh", horiz=T, las=2, cex.names = 0.7)
 ```
 Remark 1: (There's some value in the third dataset that is missing, which meant that the totals from each year is not investigated, as that would yield misconceptions)
+It seems like the data itself is not distinctive enough to be able figure out the difference from first site.
+
+```{r}
+sdev1 = mean(values2019)
+sdev2 = mean(values2020)
+sdev3= mean(values2023[1:14])
+ts = c(sdev1, sdev2, sdev3)
+barplot(ts, names.arg=c('2019', '2020', '2023'))
+```
+It seems like the hypothesis has been falsified, there was an electric usage increase, but not during the pandemic, instead after the pandemic.
+It turns after some research that it's because of the rapid transition into renewable energy, understanding that it's not actually related to usage of electric equipment, the answer to the research question is that the usage of electric equipments, at least during this period of pandemic, did not led to an increase of electric usage.
+
+## Research question 2:
+So, the first hypothesis has failed, after some more research is has found that the majority of the reason 
