@@ -81,13 +81,15 @@ To get an idea of the new data, we will do a quick bargraph of the 'general supp
 library(readxl)
 library(dplyr)
 options(scipen = 999)
+
+# Read in files
 extracted_data <- read_excel("data/Electricity_consumption(extracted).xlsx")
 extracted_data <- arrange(extracted_data)
 
 # Setting up the output graph
 par(mar = c(5, 8, 0, 2), mgp = c(4, 1, 0))
 
-# The 2019 Dataset(From general supply)
+# The 2019 Dataset
 values2019 <- extracted_data$`2019-R`
 suburbs2019 <- extracted_data$H2019
 barplot(values2019, names.arg=wrap.labels(rev(suburbs2019), 20), 
@@ -99,24 +101,32 @@ suburbs2020 <- extracted_data$H2020
 barplot(values2020, names.arg=wrap.labels(rev(suburbs2020), 20), 
         col="green", xlab=" Electricity consumption/mgh", horiz=T, las=2, cex.names = 0.7)
 
-# The 2023 Dataset
-values2023 <- na.omit(extracted_data$`2023-R`)
-suburbs2023 <- na.omit(extracted_data$`H-2023`)
-barplot(values2023[1:14], names.arg=wrap.labels(rev(suburbs2023), 20), 
+# The 2021 Dataset
+values2021 <- extracted_data$`2021-R`
+suburbs2021 <- extracted_data$H2021
+barplot(values2021, names.arg=wrap.labels(rev(suburbs2021), 20), 
         col="blue", xlab=" Electricity consumption/mgh", horiz=T, las=2, cex.names = 0.7)
 ```
-Remark 1: (There's some value in the third dataset that is missing, which meant that the totals from each year is not investigated, as that would yield misconceptions)
 It seems like the data itself is not distinctive enough to be able figure out the difference from first site.
 
-```{r}
+```{r eval=TRUE}
 sdev1 = mean(values2019)
 sdev2 = mean(values2020)
-sdev3= mean(values2023[1:14])
+sdev3 = mean(values2021)
 ts = c(sdev1, sdev2, sdev3)
-barplot(ts, names.arg=c('2019', '2020', '2023'))
+barplot(ts, names.arg=c('2019', '2020', '2021'))
 ```
-It seems like the hypothesis has been falsified, there was an electric usage increase, but not during the pandemic, instead after the pandemic.
-It turns after some research that it's because of the rapid transition into renewable energy, understanding that it's not actually related to usage of electric equipment, the answer to the research question is that the usage of electric equipments, at least during this period of pandemic, did not led to an increase of electric usage.
-
+It seems like the hypothesis has been falsified, there was a slight electric usage increase, but not during pandemic, instead it was after the pandemic in 2021
+To investigate further why this is the case, we can add the 2022 dataset into the mix.
+(Note: Some datas from 2022 is missing, it's supposed to be updated to record the 2023 dataset later)
+```{r}
+values2022 <- extracted_data$`2022-R`
+values2022 <- na.omit(values2022)
+sdev4 <- mean(values2022)
+cp <- c(sdev1, sdev2, sdev3, sdev4)
+barplot(cp, names.arg=c('2019', '2020', '2021', '2022'))
+print(sdev4-sdev2)
+```
+So, the first hypothesis has failed, after some more research it has found that the majority of the reason why there was an increase of electric usage from 2021 to 2022 is a complicated matter.It's mainly caused by the fact that the energy policies are switching to one that is more suitable for wide applications of renewable energies in the power grid, 
 ## Research question 2:
-So, the first hypothesis has failed, after some more research is has found that the majority of the reason 
+
