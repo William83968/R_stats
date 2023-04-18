@@ -2,7 +2,7 @@
 title: "SydneyEnergyResearch"
 subtitle: "Electricity"
 author: "© University of Sydney 2023"
-date: 
+date: 30/03/2023
 output:
   html_document:
     fig_caption: yes
@@ -20,13 +20,6 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-## Data Story
-The impact of the covid-19 pandemic on electricity consumption in the different suburbs of Sydney
-As covid-19 strikes Australia, our reliance on digital equipments especially remote streaming apps has increased drastically.So, the hypothesis is the usage of digital equipments has led to a increase in electricity consumption.
-
-## Research question:
-Is there an electricity usage rise during the pandemic?
 
 ```{r include=FALSE}
 library(readxl)
@@ -46,6 +39,9 @@ head(data2020, 10)
 dim(data2023)
 head(data2023, 10)
 ```
+## Data source verification
+This data source is from Ausgrid, which is a large electricity provider that has more than 1.7 million customers in Sydney, Australia.Although this is a electricty provider that is run by a company, however, it must be subjected to a range of regulations and guidelines to ensure the accuracy of their data, including the Australian Energy Regulator(AER), according to the Australian energy policies.
+
 Some useful functions
 ```{r}
 filter_int <- function(data){
@@ -74,6 +70,11 @@ wrap.labels <- function(x, len)
   }
 }
 ```
+## Research question 1:
+The impact of the covid-19 pandemic on electricity consumption in the different suburbs of Sydney
+As covid-19 strikes Australia, our reliance on digital equipments especially remote streaming apps has increased drastically.So, the hypothesis is the usage of digital equipments has led to a increase in electricity consumption.
+Is there an electricity usage rise during the pandemic?
+
 ## IDA
 To get an idea of the new data, we will do a quick bargraph of the 'general supply' columns from the excel file.
 (It is with several trial and error, that we have found out the original excel file is not suitable for R data analysis, therefore manual excel operation was done to extract it out into a form which was useful.)
@@ -93,19 +94,19 @@ par(mar = c(5, 8, 0, 2), mgp = c(4, 1, 0))
 values2019 <- extracted_data$`2019-R`
 suburbs2019 <- extracted_data$H2019
 barplot(values2019, names.arg=wrap.labels(rev(suburbs2019), 20), 
-        col="red", xlab=" Electricity consumption/mgh", horiz=T, las=2, cex.names = 0.7)
+        col="red", xlab=" Electricity consumption/MWh", horiz=T, las=2, cex.names = 0.7)
 
 # The 2020 Dataset
 values2020 <- extracted_data$`2020-R`
 suburbs2020 <- extracted_data$H2020
 barplot(values2020, names.arg=wrap.labels(rev(suburbs2020), 20), 
-        col="green", xlab=" Electricity consumption/mgh", horiz=T, las=2, cex.names = 0.7)
+        col="green", xlab=" Electricity consumption/MWh", horiz=T, las=2, cex.names = 0.7)
 
 # The 2021 Dataset
 values2021 <- extracted_data$`2021-R`
 suburbs2021 <- extracted_data$H2021
 barplot(values2021, names.arg=wrap.labels(rev(suburbs2021), 20), 
-        col="blue", xlab=" Electricity consumption/mgh", horiz=T, las=2, cex.names = 0.7)
+        col="blue", xlab=" Electricity consumption/MWh", horiz=T, las=2, cex.names = 0.7)
 ```
 It seems like the data itself is not distinctive enough to be able figure out the difference from first site.
 
@@ -124,9 +125,57 @@ values2022 <- extracted_data$`2022-R`
 values2022 <- na.omit(values2022)
 sdev4 <- mean(values2022)
 cp <- c(sdev1, sdev2, sdev3, sdev4)
-barplot(cp, names.arg=c('2019', '2020', '2021', '2022'))
+barplot(cp, names.arg=c('2019', '2020', '2021', '2022-2023'))
 print(sdev4-sdev2)
 ```
-So, the first hypothesis has failed, after some more research it has found that the majority of the reason why there was an increase of electric usage from 2021 to 2022 is a complicated matter.It's mainly caused by the fact that the energy policies are switching to one that is more suitable for wide applications of renewable energies in the power grid, 
-## Research question 2:
+So, the first hypothesis has failed, after some more research it has found that the reason why there was an increase of electric usage from 2021 to 2022 is a complicated matter.It's mainly caused by the fact that the energy policies are switching to one that is more suitable for wider applications of renewable energies in the power grid.
+However, it is also considered that as some values from the 2022-2023 dataset is missing, part of this could also contributed to this phenomenon.
 
+## Research question 2:
+It logically makes sense that the city areas uses the most amount of electricity, since the population density in the city is much higher than other areas.
+
+(We'll use the latest complete dataset, which was the 2021 dataset, with the general supply column)
+```{r eval=TRUE}
+distribution <- function(title, name, values){
+  df <- data.frame(label=name, value=values)
+  df_sorted <- df[order(df$value, decreasing = FALSE),]
+  mean_val <- mean(values)
+  sd_val <- sd(values)
+  par(mar = c(5, 6, 2, 2), mgp = c(4, 1, 0), fig = c(0, 1, 0, 1), fin = c(6, 4))
+  barplot(df_sorted$value, names.arg=wrap.labels(df_sorted$label, 20), 
+        col="blue", xlab=title, horiz=T, las=2, cex.names = 0.4, , cex.lab=0.7, cex.axis=0.7)
+  hist(values, breaks=10, freq=FALSE, col="grey", xlab="Values", main="Normal Distribution")
+  curve(dnorm(x, mean=mean_val, sd=sd_val), add=TRUE, col="blue")
+  abline(v = mean_val, col = "red", lwd = 2)
+}
+distribution("Electricity Consumption/MWh", suburbs2021, values2021)
+```
+As can see, the electricity consumption of general supplies is actually skewed towards the lower end, which meant that the majority of the suburbs don't actually uses as much compared to few areas which uses really high amounts of electricity.
+To see why, we can switch the target column from 'General Supply' to 'Non residential large sites' which usually spend 160 megawatts per hour
+```{r eval=TRUE}
+values2021L <- extracted_data$`2021-L`
+distribution("Electricity Consumption/MWh",suburbs2021, values2021L)
+```
+'Non residential medium sites'
+```{r eval=TRUE}
+values2021M <- extracted_data$`2021-M`
+distribution("Electricity Consumption/MWh",suburbs2021, values2021M)
+```
+As can see, this shows a nuanced side of the distribution of electricity consumption by Ausgrid, as Ausgrid is the largest distributor of electricity on the east coast, it can be considered as reflective of the total electricity consumption of Sydney.The majority of electricity spent is by the city areas, but depending on what your target customer is.
+(Note: It is considered )
+Finally, to make a conclusion, a pie chart is made
+```{r eval=TRUE}
+par(mar = c(5, 6, 2, 2), mgp = c(4, 1, 0), fig = c(0, 1, 0, 1), fin = c(6, 4))
+sum_2021G <- sum(values2021)
+sum_2021M <- sum(values2021M)
+sum_2021L <- sum(values2021L)
+pie_values <- c(sum_2021G, sum_2021M, sum_2021L)
+pie_labels <- c("General Supply", "Medium Sites", "Large Sites")
+pie(pie_values, labels = pie_labels)
+```
+
+As can see, depending on what kind of electricity consumption you're looking at, the differences between urban areas and suburban areas varies.
+However, the question in mind was more about residential areas.
+```{r eval=TRUE}
+
+```
